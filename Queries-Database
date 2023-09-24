@@ -1,0 +1,63 @@
+Query 1: Employee Full Name
+
+SELECT [Employee]![Employee First Name] & ' ' &
+[Employee]![Employee Last Name] AS [Employee Full Name]
+FROM Employee;
+
+Query 2: Client Full Name
+
+SELECT [Clients]![Client First Name] & ' ' & [Clients]![Client
+Last Name] AS [Client Full Name]
+FROM Clients;
+
+Query 3: Inventory Intake
+
+SELECT [Inventory Sale].*, [Quantity Used]*[Unit Price]
+AS [Extended Price], Services.[Service Cost],
+[Service Cost]+[Extended Price]
+AS Total
+FROM Services INNER JOIN (Jobs INNER JOIN [Inventory Sale]
+ON Jobs.JobNumber = [Inventory Sale].[Job Number])
+ON Services.ServiceID = Jobs.ServiceID;
+
+Query 4: Inventory On Hand
+
+SELECT InventoryIntake.[Product Name], Nz([QuantityReceived],0)
+AS StockIn, Nz([QuantityUsed],0) AS StockOut, [StockIn]-
+[StockOut] AS QuantityOnHand
+FROM InventoryIntake LEFT JOIN InventoryOut ON
+InventoryIntake.[Product Name] = InventoryOut.[Product Name];
+
+Query 5: Inventory Out
+
+SELECT Jobs.IsPaid, [Inventory Sale].[Product Name],
+Sum([Inventory Sale].[Quantity Used]) AS QuantityUsed
+FROM Jobs INNER JOIN [Inventory Sale]
+ON Jobs.JobNumber = [Inventory Sale].[Job Number]
+GROUP BY Jobs.IsPaid, [Inventory Sale].[Product Name]
+HAVING (((Jobs.IsPaid)=Yes) AND (([Inventory Sale].[Product
+Name]) Is Not Null));
+
+Query 6: Cost of Goods Sold
+
+SELECT [Sale Detail Query].[Job Number], [Sale Detail
+Query].[Quantity Used], [Inventory Intake].[Unit Cost], [Sale
+Detail Query].[Extended Price], ([Unit Cost]*[Quantity Used])
+AS [Ext Cost], [Extended Price]-([Unit Cost]*[Quantity Used])
+AS [Profit/Loss]
+FROM [Sale Detail Query] INNER JOIN [Inventory Intake] ON [Sale
+Detail Query].[Product Name] = [Inventory Intake].[Product Name]
+GROUP BY [Sale Detail Query].[Job Number], [Sale Detail
+Query].[Quantity Used], [Inventory Intake].[Unit Cost], [Sale
+Detail Query].[Extended Price], ([Unit Cost]*[Quantity Used]),
+[Extended Price]-([Unit Cost]*[Quantity Used]);
+
+Query 7: Sale Detail Query
+
+SELECT [Inventory Sale].*, [Quantity Used]*[Unit Price] AS
+[Extended Price], Services.[Service Cost], [Service
+Cost]+[Extended Price]
+AS Total
+FROM Services INNER JOIN (Jobs INNER JOIN [Inventory Sale] ON
+Jobs.JobNumber = [Inventory Sale].[Job Number])
+ON Services.ServiceID = Jobs.ServiceID;
